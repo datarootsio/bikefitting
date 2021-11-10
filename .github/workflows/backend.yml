@@ -1,0 +1,130 @@
+name: 'ML backend'
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'backend/**'
+env:
+  # Set the Environment variables to the names of the used Azure resources
+  AZURE_ML_WORKSPACE_NAME: 'ml-bikefitting-tf'
+  AZURE_RESOURCEGROUP_NAME: 'rg-bikefitting-tf'
+  AZURE_RESOURCEGROUP_FUNCTION_NAME: 'rg-bikefitting-function-tf'
+  AZURE_FUNCTIONAPP_NAME: 'fa-bikefitting'
+  AZURE_STORAGE_CONNECTION_ACCOUNT: 'sabikefittingtf'
+
+jobs:
+  run-linters:
+    name: 'Linting'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Check out Git repository'
+        uses: actions/checkout@v2
+
+      - name: 'Set up Python'
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
+
+      - name: 'Install Python dependencies'
+        run: |
+          python -m pip install --no-cache-dir --upgrade pip
+          pip install black flake8
+
+      - name: 'Run linters'
+        working-directory: backend
+        run: |
+          black ./src/
+          # stop the build if there are Python syntax errors or undefined names
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+          flake8 . --count --exit-zero --ignore=E402,W503,W504 --max-complexity=10 --max-line-length=127 --statistics
+
+  run-testing:
+    name: 'Testing'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Check out Git repository'
+        uses: actions/checkout@v2
+
+      - name: 'Set up Python'
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
+
+      - name: 'Install Python dependencies'
+        run: |
+          python -m pip install --no-cache-dir --upgrade pip
+          pip install pytest coverage poetry
+
+      - name: 'Install Poetry dependencies'
+        working-directory: backend/src/test
+        run: |
+          poetry config virtualenvs.create false
+          poetry install --no-root
+
+      - name: 'Run pytest with coverage'
+        run: |
+          coverage run -m pytest ./backend/src/test
+          coverage xml
+
+      - name: 'Upload coverage to Codecov'
+        uses: codecov/codecov-action@v2
+        with:
+          fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+  build-container:
+    name: 'Deploy ML model'
+    needs: [run-linters, run-testing]
+    runs-on: ubuntu-latest
+    env:
+      ID: ${{ secrets.CLIENT_ID }}
+      CLIENT: ${{ secrets.CLIENT_SECRET }}
+      TENANT: ${{ secrets.TENANT_ID }}
+      SUBSCRIBTION: ${{ secrets.SUBSCRIPTION_ID }}
+    steps:
+      - name: 'Checkout GitHub Action'
+        uses: actions/checkout@master
+
+      - name: 'Setup Python Environment'
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: 'Install Python dependencies'
+        run: |
+          python -m pip install --no-cache-dir --upgrade pip
+          pip install poetry
+
+      - name: 'Install Poetry dependencies'
+        working-directory: backend/src/scripts
+        run: |
+          poetry config virtualenvs.create false
+          poetry install --no-root
+
+      - name: 'Azure Login'
+        uses: Azure/login@v1
+        with:
+          enable-AzPSSession: true
+          creds: '{"clientId":"${{ secrets.CLIENT_ID }}","clientSecret":"${{ secrets.CLIENT_SECRET }}","subscriptionId":"${{ secrets.SUBSCRIPTION_ID }}","tenantId":"${{ secrets.TENANT_ID }}"}'
+
+      # This step wil register and deploy the model in Azure ML by using two python scripts. From the output of the scripts the model endpoint is saved for the next step.
+      - name: 'Deploy ML model'
+        working-directory: backend
+        env:
+          LOCAL_PATH_TO_MODELS_DIR: './models'
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.SUBSCRIPTION_ID }}
+          AZURE_CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          AZURE_TENANT_ID: ${{ secrets.TENANT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+          VM_SIZE: 'Standard_F4s_v2'
+        run: |
+          python ./src/scripts/deploy_model.py 2>&1 | tee file.txt
+          AZURE_ML_MODEL_ENDPOINT_URL=$(grep "Model Endpoint scoring-url" file.txt | rev | cut -d " " -f 1 | rev)
+          echo "AZURE_ML_MODEL_ENDPOINT_URL=$AZURE_ML_MODEL_ENDPOINT_URL" >> $GITHUB_ENV
+
+      # The function needs to know the ml endpoint url. This step wil pass the url from the Model endpoint to the Azure Function app
+      - name: 'Set ML endpoint env in the Azure function'
+        if: ${{ env.AZURE_ML_MODEL_ENDPOINT_URL}}
+        run: az functionapp config appsettings set --name $AZURE_FUNCTIONAPP_NAME --resource-group $AZURE_RESOURCEGROUP_FUNCTION_NAME --settings AZURE_ML_MODEL_ENDPOINT=$AZURE_ML_MODEL_ENDPOINT_URL --output none

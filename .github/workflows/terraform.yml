@@ -1,0 +1,42 @@
+name: 'Terraform'
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'terraform/**.tf'
+env:
+  ARM_CLIENT_ID: ${{ secrets.CLIENT_ID }}
+  ARM_CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+  ARM_TENANT_ID: ${{ secrets.TENANT_ID }}
+  ARM_SUBSCRIPTION_ID: ${{ secrets.SUBSCRIPTION_ID }}
+jobs:
+  terraform:
+    name: 'Terraform'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v2
+
+      - name: 'Terraform setup'
+        uses: hashicorp/setup-terraform@v1
+
+      - name: 'Terraform Init'
+        run: terraform init
+        working-directory: ./terraform
+
+      - name: 'Terraform Validate'
+        run: terraform validate
+        working-directory: ./terraform
+
+      - name: 'Terraform Fmt'
+        run: terraform fmt -check
+        working-directory: ./terraform
+
+      - name: 'Terraform Plan'
+        run: terraform plan -lock-timeout=600s -out=planfile
+        working-directory: ./terraform
+
+      - name: 'Terraform Apply'
+        run: terraform apply -lock-timeout=600s -auto-approve planfile
+        working-directory: ./terraform

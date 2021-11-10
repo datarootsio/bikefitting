@@ -1,0 +1,86 @@
+name: 'Azure Function'
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'function/**'
+env:
+  # Set the Environment variables to the names of the used Azure resources
+  AZURE_RESOURCEGROUP: 'rg-bikefitting-function-tf'
+  AZURE_FUNCTIONAPP_NAME: 'fa-bikefitting'
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: './function'
+  PYTHON_VERSION: '3.8'
+
+jobs:
+  run-linters:
+    name: 'Linting'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Check out Git repository'
+        uses: actions/checkout@v2
+
+      - name: 'Set up Python'
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
+
+      - name: 'Install Python dependencies'
+        run: |
+          python -m pip install --no-cache-dir --upgrade pip
+          pip install black flake8
+
+      - name: 'Run linters'
+        working-directory: function
+        run: |
+          black ./BlobTrigger/
+          # stop the build if there are Python syntax errors or undefined names
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+  build-container:
+    name: 'Deploy azure function'
+    runs-on: ubuntu-latest
+    env:
+      ID: ${{ secrets.CLIENT_ID }}
+      CLIENT: ${{ secrets.CLIENT_SECRET }}
+      TENANT: ${{ secrets.TENANT_ID }}
+      SUBSCRIBTION: ${{ secrets.SUBSCRIPTION_ID }}
+    steps:
+      - name: 'Checkout GitHub Action'
+        uses: actions/checkout@master
+
+      - name: Setup Python ${{ env.PYTHON_VERSION }} Environment
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: 'Resolve Project Dependencies Using Pip'
+        shell: bash
+        run: |
+          pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
+          python -m pip install --no-cache-dir --upgrade pip
+          pip install --no-cache-dir -r requirements.txt --target=".python_packages/lib/site-packages"
+          popd
+
+      - name: 'Azure Login'
+        uses: Azure/login@v1
+        with:
+          enable-AzPSSession: true
+          creds: '{"clientId":"${{ secrets.CLIENT_ID }}","clientSecret":"${{ secrets.CLIENT_SECRET }}","subscriptionId":"${{ secrets.SUBSCRIPTION_ID }}","tenantId":"${{ secrets.TENANT_ID }}"}'
+
+      - name: 'Get the Azure Function Publish Profile'
+        run: |
+          PUBLISH_PROFILE=$(az webapp deployment list-publishing-profiles -g $AZURE_RESOURCEGROUP -n $AZURE_FUNCTIONAPP_NAME --xml)
+          echo "::add-mask::$PUBLISH_PROFILE"
+          echo "::set-output name=PUBLISH_PROFILE::$PUBLISH_PROFILE"
+        id: getPublishProfile
+
+      - name: 'Run Azure Functions Action'
+        uses: Azure/functions-action@v1
+        id: fa
+        with:
+          app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
+          package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
+          publish-profile: ${{ steps.getPublishProfile.outputs.PUBLISH_PROFILE }}

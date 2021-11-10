@@ -1,0 +1,45 @@
+# Ignore everything
+*
+!*/
+.*venv
+
+# But not
+# These files in root
+!.gitignore
+!README.md
+!LICENSE
+
+# Not these files in any subdirectory
+!**/*Dockerfile
+!**/*pyproject.toml
+!**/*poetry.lock
+!**/*requirements.txt
+
+#These files in .github
+!.github/workflows/*.yml
+
+#These files in function
+!function/host.json
+!function/.funcignore
+!function/**/*.py
+!function/**/function.json
+
+# These files in backend
+!backend/src/**/*.py
+!backend/models/**
+!backend/src/test/*.mp4
+!backend/src/test/*.json
+
+# These files in frontend
+!frontend/src/**/*.py
+!frontend/images/**/*.jpg
+!frontend/images/**/*.png
+!frontend/textfiles/*.txt
+!frontend/src/test/*.json
+!frontend/config.toml
+!frontend/credentials.toml
+
+# All files in terraform
+!terraform/README.md
+!terraform/images/*.png
+!terraform/*.tf

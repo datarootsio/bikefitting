@@ -1,0 +1,1 @@
+To ensure optimal peformance by our algorithm, please make sure that the video only contains footage with you already on the bike.

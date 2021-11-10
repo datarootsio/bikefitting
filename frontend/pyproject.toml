@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "bikefitting-frontend"
+version = "0.1.0"
+description = ""
+authors = ["YannouRavoet <yannou.ravoet@dataroots.io>", "LiesbethBogaert <liesbeth.bogaert@dataroots.io>", "ChielMues <chiel.mues@dataroots.io>", "GiliamRosseel <giliam.rosseel@dataroots.io>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+streamlit = "1.0.0"
+poetry-core = ">=1.0.0"
+azure-storage-blob = "12.9.0"
+azure-identity = "1.7.0"
+moviepy = "1.0.3"
+DateTime = "4.3"
+pytest-shutil = "1.7.0"
+matplotlib = "3.4.3"
+python-dotenv = "0.19.1"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

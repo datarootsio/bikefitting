@@ -1,0 +1,16 @@
+tensorflow==2.6.0
+tensorflow_hub==0.12.0
+tensorflow-estimator==2.6.0
+keras==2.6.0
+moviepy==1.0.3
+scipy==1.5.4
+Pillow==8.4.0
+azure-common==1.1.27
+azure-core==1.19.1
+azure-storage-blob==12.9.0
+azure-identity==1.7.0
+seaborn==0.11.2
+pandas==1.1.5
+matplotlib==3.3.4
+python-dotenv==0.19.1
+numpy==1.19.5

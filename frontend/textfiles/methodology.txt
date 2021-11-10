@@ -1,0 +1,14 @@
+An artificial intelligence model is used to estimate the position of three keypoints on the body for every frame in the video. 
+We use machine learning to detect in which frames of the video the lowest point in the cycling motion is reached.
+For these frames we calculate the knee-angle based on the three keypoints. This results in many estimates for the knee-angle.
+
+Because each individual estimate of the knee-angle might contain some noise, we average all the estimates and use this for our final recommendation.
+
+In the graph below you can see a histogram of all angles calculated at the lowest point. 
+Ideally these are centered around the average, indicated by the dotted vertical line.
+The solid blue line is a smooth estimate of the errors for the uploaded video. 
+Ideally it should resemble the curve of the solid black line, which is a curve showing an idealized distrubution of errors. 
+If the blue curve differs significantly from the black curve, please check that the set-up you used resembles the set-up we used for development of the model.
+
+145° was chosen as a comfortable angle based on the following reference:
+*Burt, P. (2014). Bike Fit, Optimise your bike position for high performance and injury avoidance. London: Bloomsbury Publishing.*
