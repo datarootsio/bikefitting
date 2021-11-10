@@ -1,4 +1,4 @@
-[![Terraform](https://github.com/datarootsio/rootsacademy-bikefitting/actions/workflows/terraform.yml/badge.svg?branch=main)](https://github.com/datarootsio/rootsacademy-bikefitting/actions/workflows/terraform.yml)
+[![Terraform](https://github.com/datarootsio/bikefitting/actions/workflows/terraform.yml/badge.svg)](https://github.com/datarootsio/bikefitting/actions/workflows/terraform.yml)
 
 # Terraform deployment
 
