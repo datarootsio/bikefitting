@@ -2,7 +2,7 @@ name: 'Streamlit frontend'
 on:
   push:
     branches:
-      - main
+      - master
     paths:
       - 'frontend/**'
 env:

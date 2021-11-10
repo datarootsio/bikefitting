@@ -113,7 +113,7 @@ deployment_config = AciWebservice.deploy_configuration(
 # DEPLOYMENT
 service = Model.deploy(
     workspace=ws,
-    name="movenetthunder-demo",
+    name="movenetthunder",
     models=[],  # model is pulled from tensorflowhub
     inference_config=inference_config,
     deployment_config=deployment_config,

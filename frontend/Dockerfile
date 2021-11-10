@@ -16,6 +16,5 @@ RUN cp config.toml ~/.streamlit/config.toml
 RUN cp credentials.toml ~/.streamlit/credentials.toml
 
 WORKDIR /app
-
 ENTRYPOINT ["streamlit", "run"]
 CMD ["src/app.py"]

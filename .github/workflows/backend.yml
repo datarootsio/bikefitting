@@ -2,7 +2,7 @@ name: 'ML backend'
 on:
   push:
     branches:
-      - main
+      - master
     paths:
       - 'backend/**'
 env:
