@@ -64,7 +64,7 @@ inference_config = InferenceConfig(
 )
 
 # CREATE COMPUTE TARGET
-compute_type = "COMPUTE_CLUSTER"
+compute_type = "COMPUTE_INSTANCE"
 if compute_type == "COMPUTE_INSTANCE":
     deployment_target_name = "aci-inference"
 elif compute_type == "COMPUTE_CLUSTER":
