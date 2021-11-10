@@ -1,6 +1,6 @@
 [![maintained by dataroots](https://img.shields.io/badge/maintained%20by-dataroots-%2300b189)](https://dataroots.io)
  ![](https://media-exp1.licdn.com/dms/image/C4D1BAQFJFecNiY6xNA/company-background_10000/0/1606894615032?e=1628604000&v=beta&t=hNYzs9y3EA-620Ck8ip1QaZc77eXlH1ZUl-E-sLI6wo "Logo")
-[![codecov](https://codecov.io/gh/datarootsio/bikefitting/branch/main/graph/badge.svg?token=7UPDN8GTYI)](https://codecov.io/gh/datarootsio/bikefitting)
+[![codecov](https://codecov.io/gh/datarootsio/bikefitting/branch/master/graph/badge.svg?token=7UPDN8GTYI)](https://codecov.io/gh/datarootsio/bikefitting)
 [![Streamlit frontend](https://github.com/datarootsio/bikefitting/actions/workflows/frontend.yml/badge.svg)](https://github.com/datarootsio/bikefitting/actions/workflows/frontend.yml)
 [![Azure Function](https://github.com/datarootsio/bikefitting/actions/workflows/function.yml/badge.svg)](https://github.com/datarootsio/bikefitting/actions/workflows/function.yml)
 [![ML backend](https://github.com/datarootsio/bikefitting/actions/workflows/backend.yml/badge.svg)](https://github.com/datarootsio/bikefitting/actions/workflows/backend.yml)
