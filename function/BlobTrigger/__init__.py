@@ -5,7 +5,6 @@ import requests
 import azure.functions as func
 
 
-"Test function deployment"
 def main(myblob: func.InputStream):
     """Sends a request to the Machine learning model once activated by blob storage event
     Args:
