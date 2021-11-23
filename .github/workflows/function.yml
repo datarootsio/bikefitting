@@ -68,19 +68,10 @@ jobs:
         uses: Azure/login@v1
         with:
           enable-AzPSSession: true
-          creds: '{"clientId":"${{ secrets.CLIENT_ID }}","clientSecret":"${{ secrets.CLIENT_SECRET }}","subscriptionId":"${{ secrets.SUBSCRIPTION_ID }}","tenantId":"${{ secrets.TENANT_ID }}"}'
-
-      - name: 'Get the Azure Function Publish Profile'
-        run: |
-          PUBLISH_PROFILE=$(az webapp deployment list-publishing-profiles -g $AZURE_RESOURCEGROUP -n $AZURE_FUNCTIONAPP_NAME --xml)
-          echo "::add-mask::$PUBLISH_PROFILE"
-          echo "::set-output name=PUBLISH_PROFILE::$PUBLISH_PROFILE"
-        id: getPublishProfile
+          creds: '{"clientId":"${{ secrets.CLIENT_ID }}","clientSecret":"${{ secrets.CLIENT_SECRET }}","subscriptionId":"${{ secrets.SUBSCRIPTION_ID }}","tenantId":"${{ secrets.TENANT_ID }}"}'p
 
       - name: 'Run Azure Functions Action'
         uses: Azure/functions-action@v1
-        id: fa
         with:
           app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
           package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
-          publish-profile: ${{ steps.getPublishProfile.outputs.PUBLISH_PROFILE }}
