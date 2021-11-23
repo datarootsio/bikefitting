@@ -65,3 +65,9 @@ resource "azurerm_role_assignment" "ra_acr" {
   role_definition_name = "AcrPull"
   principal_id         = azurerm_app_service.as.identity.0.principal_id
 }
+
+resource "azurerm_role_assignment" "ra_sa_ap" {
+  scope                = azurerm_storage_account.sa.id
+  role_definition_name = "Storage Blob Data Contributor"
+  principal_id         = azurerm_app_service.as.identity.0.principal_id
+}

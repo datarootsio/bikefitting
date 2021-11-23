@@ -28,10 +28,11 @@ resource "azurerm_function_app" "function" {
   version = "~3"
 
   app_settings = {
-    "APPINSIGHTS_INSTRUMENTATIONKEY" = azurerm_application_insights.insights.instrumentation_key
-    "AzureWebJobsStorage"            = azurerm_storage_account.sa.primary_connection_string
-    "WEBSITE_RUN_FROM_PACKAGE"       = ""
-    "FUNCTIONS_WORKER_RUNTIME"       = "python"
+    "APPINSIGHTS_INSTRUMENTATIONKEY"  = azurerm_application_insights.insights.instrumentation_key
+    "AzureWebJobsStorage"             = azurerm_storage_account.sa.primary_connection_string
+    "WEBSITE_RUN_FROM_PACKAGE"        = ""
+    "FUNCTIONS_WORKER_RUNTIME"        = "python"
+    "WEBSITE_ENABLE_SYNC_UPDATE_SITE" = "true"
   }
   site_config {
     linux_fx_version          = "python|3.8"
