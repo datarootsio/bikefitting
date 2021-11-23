@@ -64,7 +64,7 @@ inference_config = InferenceConfig(
 )
 
 # CREATE COMPUTE TARGET
-compute_type = "COMPUTE_INSTANCE"
+compute_type = "COMPUTE_CLUSTER"
 if compute_type == "COMPUTE_INSTANCE":
     deployment_target_name = "aci-inference"
 elif compute_type == "COMPUTE_CLUSTER":
@@ -91,9 +91,9 @@ except ComputeTargetException:
     elif compute_type == "COMPUTE_CLUSTER":
         prov_config = AmlCompute.provisioning_configuration(
             vm_size=vm_size,
-            min_nodes=2,
+            min_nodes=0,
             max_nodes=2,
-            idle_seconds_before_scaledown=15 * 60,
+            idle_seconds_before_scaledown=5 * 60,
         )
         deployment_target = ComputeTarget.create(
             workspace=ws,

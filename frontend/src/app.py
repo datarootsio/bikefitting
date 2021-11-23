@@ -2,7 +2,7 @@
 This file represents the website interface used to:
 - upload videos for the backend to analyze
 - and display the results to the user.
-The website is built with streamlit.
+This website is built with streamlit.
 """
 import streamlit as st
 from utils import ui
