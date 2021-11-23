@@ -117,12 +117,12 @@ service = Model.deploy(
     inference_config=inference_config,
     deployment_config=deployment_config,
     deployment_target=deployment_target,
-    overwrite=False,
+    overwrite=True,
     show_output=True,
 )
 service.wait_for_deployment(show_output=True)
 
-logging.info("=" * 200)
+logging.info("=" * 150)
 logging.info(f"DEPLOYMENT COMPLETE - {time.time()-start:.0f}sec")
 logging.info(f"WorkSpace: {ws}")
 logging.info(f"Environment: {env}")
@@ -131,4 +131,4 @@ logging.info(f"Deployment Config: {deployment_config}")
 logging.info(f"Service: {service}")
 logging.info(f"Model Endpoint scoring-url: {service.scoring_uri}")
 logging.info(f"Model Endpoint swagger-url: {service.swagger_uri}")
-logging.info("=" * 200)
+logging.info("=" * 150)
