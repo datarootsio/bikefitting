@@ -92,24 +92,16 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
-      # POETRY DEPENDENCIES
-      - name: 'Install Poetry'
-      - uses: snok/install-poetry@v1
-        with:
-          version: 1.1.10
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-      - name: 'Use caching based on poetry lock file'
-        uses: actions/cache@v2.1.3
-        id: cached-poetry-dependencies
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
-      - name: 'Install Poetry dependencies'
-        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+      - name: 'Install Python dependencies'
         run: |
-          poetry config experimental.new-installer false
-          poetry install --no-interaction --no-root -vvv
+          python -m pip install --no-cache-dir --upgrade pip
+          pip install poetry
+
+      - name: 'Install Poetry dependencies'
+        working-directory: backend/src/scripts
+        run: |
+          poetry config virtualenvs.create false
+          poetry install --no-root
 
       - name: 'Azure Login'
         uses: Azure/login@v1
