@@ -4,9 +4,9 @@ This file represents the website interface used to:
 - and display the results to the user.
 This website is built with streamlit.
 """
-import streamlit as st
-from utils import ui
 import logging
+from utils import ui
+import streamlit as st
 
 logging.getLogger("azure").setLevel(logging.ERROR)
 
