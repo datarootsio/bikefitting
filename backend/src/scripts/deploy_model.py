@@ -4,10 +4,9 @@ It returns information about the used resources as
 well as the scoring url used trigger model inference.
 """
 import os
-from dotenv import load_dotenv
 import time
-
 import logging
+from dotenv import load_dotenv
 from azureml.core import Environment, Workspace
 from azureml.core.model import InferenceConfig, Model
 from azureml.core.webservice import AciWebservice
