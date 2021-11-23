@@ -117,7 +117,7 @@ service = Model.deploy(
     inference_config=inference_config,
     deployment_config=deployment_config,
     deployment_target=deployment_target,
-    overwrite=True,
+    overwrite=False,
     show_output=True,
 )
 service.wait_for_deployment(show_output=True)
