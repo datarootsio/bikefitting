@@ -60,8 +60,8 @@ jobs:
         shell: bash
         run: |
           pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
-          python -m pip install --no-cache-dir --upgrade pip
-          pip install --no-cache-dir -r requirements.txt --target=".python_packages/lib/site-packages"
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt --target="./.python_packages/lib/site-packages"
           popd
 
       - name: 'Azure Login'
