@@ -9,8 +9,8 @@ import logging
 from dotenv import load_dotenv
 from azureml.core import Environment, Workspace
 from azureml.core.model import InferenceConfig, Model
-from azureml.core.webservice import AciWebservice
-from azureml.core.compute import ComputeTarget, AmlCompute, ComputeInstance
+from azureml.core.webservice import AksWebservice
+from azureml.core.compute import ComputeTarget, AksCompute
 from azureml.exceptions import ComputeTargetException
 from azureml.core.authentication import ServicePrincipalAuthentication
 
@@ -62,61 +62,45 @@ inference_config = InferenceConfig(
     environment=env, source_directory=src_dir_path, entry_script="entry.py"
 )
 
-# CREATE COMPUTE TARGET
-compute_type = "COMPUTE_CLUSTER"
-if compute_type == "COMPUTE_INSTANCE":
-    deployment_target_name = "aci-inference"
-elif compute_type == "COMPUTE_CLUSTER":
-    deployment_target_name = "compcluster-inf"
-
-try:
-    if compute_type == "COMPUTE_INSTANCE":
-        deployment_target = ComputeInstance(workspace=ws, name=deployment_target_name)
-    elif compute_type == "COMPUTE_CLUSTER":
+# Deployment Target
+deploy_on_aks = True
+if deploy_on_aks:
+    deployment_target_name = "akscluster-inf"
+    try:
         deployment_target = ComputeTarget(workspace=ws, name=deployment_target_name)
-    logging.info("Found existing deployment target")
-except ComputeTargetException:
-    logging.info("Creating a new deployment target...")
-    vm_size = os.getenv("VM_SIZE")
-    # GPU: Standard_NC6 (6 cores, 56 GB RAM, 1xNVIDIA Tesla K80) 1.17$/hr
-    # CPU: Standard_F4s_v2 (4 cores, 8GB RAM) 0.19$/hr
-    if compute_type == "COMPUTE_INSTANCE":
-        prov_config = ComputeInstance.provisioning_configuration(vm_size=vm_size)
-        deployment_target = ComputeInstance.create(
-            workspace=ws,
-            name=deployment_target_name,
-            provisioning_configuration=prov_config,
-        )
-    elif compute_type == "COMPUTE_CLUSTER":
-        prov_config = AmlCompute.provisioning_configuration(
-            vm_size=vm_size,
-            min_nodes=0,
-            max_nodes=2,
-            idle_seconds_before_scaledown=5 * 60,
+        logging.info("Found existing deployment target")
+    except ComputeTargetException:
+        logging.info("Creating a new deployment target...")
+        vm_size = os.getenv("VM_SIZE")
+        # GPU: Standard_NC6 (6 cores, 56 GB RAM, 1xNVIDIA Tesla K80) 1.17$/hr
+        # CPU: Standard_F4s_v2 (4 cores, 8GB RAM) 0.19$/hr
+        prov_config = AksCompute.provisioning_configuration(
+            vm_size=vm_size
         )
         deployment_target = ComputeTarget.create(
             workspace=ws,
             name=deployment_target_name,
             provisioning_configuration=prov_config,
-        )
-    deployment_target.wait_for_completion(show_output=True)
-
-# Deployment Config
-deployment_config = AciWebservice.deploy_configuration(
-    cpu_cores=3.8,  # +0.2 default (max: 4 [West Europe])
-    memory_gb=7,  # +1 default (max: 16 [West Europe])
-    enable_app_insights=True,
-    auth_enabled=False,
-)
+            )
+        deployment_target.wait_for_completion(show_output=True)
+    # Deployment Config
+    deployment_config = AksWebservice.deploy_configuration(
+        autoscale_enabled=True,
+        autoscale_target_utilization=70,
+        autoscale_min_replicas=1,
+        autoscale_max_replicas=4,
+        enable_app_insights=True,
+        auth_enabled=False,
+    )
 
 # DEPLOYMENT
 service = Model.deploy(
     workspace=ws,
-    name="movenetthunder",
+    name="movenet",
     models=[],  # model is pulled from tensorflowhub
     inference_config=inference_config,
-    deployment_config=deployment_config,
-    deployment_target=deployment_target,
+    deployment_config=deployment_config if deploy_on_aks else None,
+    deployment_target=deployment_target if deploy_on_aks else None,
     overwrite=True,
     show_output=True,
 )
