@@ -39,7 +39,6 @@ def setup_explanation():
     st.markdown(get_string_from_file("only_on_bike_footage.txt"))
 
 
-@st.cache(suppress_st_warning=True, show_spinner=False)
 def upload_file_to_azure(uploaded_file):
     extension = get_file_extension(uploaded_file)
     unique_id = uuid.uuid1()
@@ -49,7 +48,6 @@ def upload_file_to_azure(uploaded_file):
     return original_name, unique_id
 
 
-@st.cache(suppress_st_warning=True, show_spinner=False)
 def download_results_from_azure(blobs):
     with st.spinner("""I'm telling the model to do things. It's out of my hands!"""):
         while True:
@@ -66,7 +64,6 @@ def download_results_from_azure(blobs):
     return results
 
 
-@st.cache(suppress_st_warning=True, show_spinner=False)
 def results_recommendation(results, unique_id):
     st.header("Results")
     blob_data_json = json.loads(results[f"{unique_id}.json"])
@@ -85,14 +82,12 @@ def results_recommendation(results, unique_id):
     return recommendation, blob_data_json
 
 
-@st.cache(suppress_st_warning=True, show_spinner=False)
 def results_methodology(results, unique_id):
     with st.expander("Click here to read about the methodology"):
         st.markdown(get_string_from_file("methodology.txt"))
         st.image(results[f"{unique_id}_normalgraph.png"])
 
 
-@st.cache(suppress_st_warning=True, show_spinner=False)
 def results_videoplot(results, blob_data_json, unique_id):
     with st.spinner("A video is being processed"):
         video_name = build_plot_video(results, unique_id, blob_data_json)
@@ -100,7 +95,6 @@ def results_videoplot(results, blob_data_json, unique_id):
         os.remove(video_name)
 
 
-@st.cache(suppress_st_warning=True, show_spinner=False)
 def download_zip(results, original_name, unique_id):
     st.header("Download")
 
@@ -123,7 +117,6 @@ def download_zip(results, original_name, unique_id):
     os.remove(result_zip_name)
 
 
-@st.cache(suppress_st_warning=True, show_spinner=False)
 def follow_up(recommendation):
     if recommendation != "don't change":
         st.header("Follow up")
