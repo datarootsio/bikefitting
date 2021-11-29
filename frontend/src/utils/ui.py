@@ -49,7 +49,7 @@ def upload_file_to_azure(uploaded_file):
 
 
 def download_results_from_azure(blobs):
-    with st.spinner("""I'm telling the model to do things. It's out of my hands!"""):
+    with st.spinner("""The model is processing the video.\nIf this is your first upload, model start up can take up to 5 minutes.\nAny subsequent upload will take around 15 seconds."""):
         while True:
             try:
                 results = download_results(container="results", blobs=blobs)
