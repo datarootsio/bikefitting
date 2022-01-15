@@ -37,12 +37,13 @@ from utils.postprocessing import (
 )
 from utils.visualizations import (
     draw_angle_on_image,
+    draw_plot_of_angles,
     plot_angle_values,
     plot_normal_distribution,
     plot_y_values,
-    write_video_to_files,
-    draw_plot_of_angle
+    draw_plot_of_angles
 )
+from utils.utils import (timeit)
 
 
 def pre_process_video(file_path):
@@ -50,7 +51,7 @@ def pre_process_video(file_path):
     tensors = load_tensors_from_clip(clip)
     return clip, tensors
 
-
+@timeit
 def post_process_video(all_keypoints, ideal_angle=145):
     facing_direction = find_camera_facing_side(all_keypoints[0])
     hipkneeankleindices = get_front_leg_keypoint_indices(facing_direction)
@@ -88,7 +89,6 @@ def post_process_video(all_keypoints, ideal_angle=145):
 
 def create_visualizations(
     file_name,
-    clip,
     tensors,
     all_keypoints,
     hipkneeankleindices,
@@ -116,38 +116,6 @@ def create_visualizations(
     )
     results["angle_value_plot_file_path"] = angle_value_plot_file_path
 
-    # Angle video
-    angle_video_file_path = f"{file_name}_anglevideo.mp4"
-    # right side of video
-    frames_with_angle = [
-        np.uint8(tensors[i])
-        if i not in lowest_pedal_point_indices
-        else draw_angle_on_image(
-            tensors[i],
-            get_hipkneeankle_coords(all_keypoints[i], hipkneeankleindices),
-            all_angles[i][0],
-            all_angles[i][1],
-            facing_direction,
-            pie_slice_width=100,
-        )
-        for i in range(len(all_keypoints))
-    ]
-    #left side of video
-    timestamps, angles = results["timestamped_angles"]
-    timestamps_used, angles_used = results["used_timestamped_angles"]
-    frames_plots = [
-        draw_plot_of_angle(timestamp, timestamps, angles, timestamps_used, angles_used)
-        for timestamp in timestamps
-    ]
-
-    #combining videos
-    clip_right = ImageSequenceClip(frames_with_angle, fps=clip.fps)
-    clip_left = ImageSequenceClip(frames_plots, fps=clip.fps).resize(height=clip.h)
-    clip_array = clips_array([[clip_left, clip_right]])
-    clip_array.write_videofile(angle_video_file_path)
-    results["angle_video_file_path"] = angle_video_file_path
-
-
     # plot normal distribution of angles
     output_normal_graph_file_path = f"{file_name}_normalgraph.png"
     plot_normal_distribution(
@@ -169,12 +137,50 @@ def create_visualizations(
     )
     results["angle_image_file_path"] = angle_image_file_path
     blobs_to_upload = [
-        angle_video_file_path,
         angle_image_file_path,
         output_normal_graph_file_path,
         y_value_plot_file_path,
         angle_value_plot_file_path,
     ]
+    return results, blobs_to_upload
+
+def create_video_visualization(
+    file_name, 
+    tensors, 
+    all_keypoints, 
+    hipkneeankleindices, 
+    facing_direction, 
+    all_angles, 
+    lowest_pedal_point_indices, 
+    results, 
+    clip
+):
+    # Angle video
+    angle_video_file_path = f"{file_name}_anglevideo.mp4"
+    # right side of video
+    frames_with_angle = [
+        np.uint8(tensors[i])
+        if i not in lowest_pedal_point_indices
+        else draw_angle_on_image(
+            tensors[i],
+            get_hipkneeankle_coords(all_keypoints[i], hipkneeankleindices),
+            all_angles[i][0],
+            all_angles[i][1],
+            facing_direction,
+            pie_slice_width=100,
+        )
+        for i in range(len(all_keypoints))
+    ]
+    #left side of video
+    frames_plots = draw_plot_of_angles(results, clip)
+
+    #combining videos
+    clip_right = ImageSequenceClip(frames_with_angle, fps=clip.fps)
+    clip_left = ImageSequenceClip(frames_plots, fps=clip.fps)
+    clip_array = clips_array([[clip_left, clip_right]])
+    clip_array.write_videofile(angle_video_file_path)
+    results["angle_video_file_path"] = angle_video_file_path
+    blobs_to_upload= [angle_video_file_path]
     return results, blobs_to_upload
 
 
@@ -254,10 +260,9 @@ def run(Inputs):
             (i * sec_per_frame, all_angles[i][1]) for i in lowest_pedal_point_indices
         ],
     }
-    # VISUALIZATIONS
+    # VISUALIZATIONS 1
     results, blobs_to_upload = create_visualizations(
         file_name,
-        clip,
         tensors,
         all_keypoints,
         hipkneeankleindices,
@@ -267,8 +272,20 @@ def run(Inputs):
         angles_at_lowest_pedal_points,
         results,
     )
+    upload_results(file_name, results, blobs_to_upload)
 
-    # Upload results
+    # VISUALIZATIONS 2
+    results, blobs_to_upload = create_video_visualization(
+        file_name, 
+        tensors, 
+        all_keypoints, 
+        hipkneeankleindices, 
+        facing_direction, 
+        all_angles, 
+        lowest_pedal_point_indices, 
+        results, 
+        clip
+    )
     upload_results(file_name, results, blobs_to_upload)
 
     # Cleanup
