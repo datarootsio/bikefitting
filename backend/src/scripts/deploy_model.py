@@ -73,9 +73,10 @@ if deploy_on_aks:
         logging.info("Creating a new deployment target...")
         vm_size = os.getenv("VM_SIZE")
         # https://azureprice.net/?currency=EUR&region=westeurope
-        # GPU: Standard_NC6 (6 cores, 56 GB RAM, 1xNVIDIA Tesla K80) 1.17$/hr
-        # CPU: Standard_F4s_v2 (4 cores, 8GB RAM) 0.19$/hr
-        # MEM: Standard_D2as_v5 (2 cores, 8GB RAM) 0.09$/hr
+        # GPU: Standard_NC6 (6 cores, 56 GB RAM, 1xNVIDIA Tesla K80) 1.0273€/hr
+        # CPU: Standard_F4s_v2 (4 cores, 8GB RAM) 0.1709€/hr
+        # CPU: Standard_F8s_v2 (8 cores, 16GB RAM) 0.3418€/hr
+        # MEM: Standard_D2as_v5 (2 cores, 8GB RAM) 0.0916€/hr
         prov_config = AksCompute.provisioning_configuration(vm_size=vm_size)
         deployment_target = ComputeTarget.create(
             workspace=ws,
@@ -86,7 +87,7 @@ if deploy_on_aks:
     # Deployment Config
     deployment_config = AksWebservice.deploy_configuration(
         autoscale_enabled=True,
-        autoscale_target_utilization=70,
+        autoscale_target_utilization=20,
         autoscale_min_replicas=1,
         autoscale_max_replicas=4,
         enable_app_insights=True,
