@@ -39,13 +39,13 @@ if uploaded_file is not None:
     recommendation, blob_data_json = ui.results_recommendation(results, unique_id)
     ui.results_methodology(results, unique_id)
 
-
     blobs_2 = [
         f"{unique_id}.json",
         f"{unique_id}_anglevideo.mp4",
     ]
-    results_2 = ui.download_results_from_azure(blobs_2, message="A video is being created...", balloons=True)
-    st.video(f"{unique_id}_anglevideo.mp4")
+    results_2 = ui.download_results_from_azure(blobs_2, message="A video is being created...", balloons=False)
+    st.markdown(results_2)
+    st.video(results_2["angle_video_file_path"])
 
     ui.download_zip(results_2, original_name, unique_id)
 
