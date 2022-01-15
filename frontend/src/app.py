@@ -25,14 +25,14 @@ if uploaded_file is not None:
         f"{unique_id}_normalgraph.png",
         f"{unique_id}_anglevalues.png",
         f"{unique_id}_yvalues.png",
-        f"{unique_id}_anglevideo.webm",
+        f"{unique_id}_anglevideo.mp4",
     ]
 
     results = ui.download_results_from_azure(blobs)
 
     recommendation, blob_data_json = ui.results_recommendation(results, unique_id)
     ui.results_methodology(results, unique_id)
-    ui.results_videoplot(results, blob_data_json, unique_id)
+    st.video(f"{unique_id}_anglevideo.mp4")
 
     ui.download_zip(results, original_name, unique_id)
 

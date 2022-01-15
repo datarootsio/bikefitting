@@ -49,7 +49,9 @@ def upload_file_to_azure(uploaded_file):
 
 
 def download_results_from_azure(blobs):
-    with st.spinner("""The model is processing the video.\nIf this is your first upload, model start up can take up to 5 minutes.\nAny subsequent upload will take around 15 seconds."""):
+    with st.spinner(
+        """The model is processing the video.\nIf this is your first upload, model start up can take up to 5 minutes.\nAny subsequent upload will take around 15 seconds."""
+    ):
         while True:
             try:
                 results = download_results(container="results", blobs=blobs)
@@ -87,12 +89,6 @@ def results_methodology(results, unique_id):
         st.markdown(get_string_from_file("methodology.txt"))
         st.image(results[f"{unique_id}_normalgraph.png"])
 
-
-def results_videoplot(results, blob_data_json, unique_id):
-    with st.spinner("A video is being processed"):
-        video_name = build_plot_video(results, unique_id, blob_data_json)
-        st.video(video_name)
-        os.remove(video_name)
 
 
 def download_zip(results, original_name, unique_id):

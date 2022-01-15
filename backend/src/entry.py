@@ -14,7 +14,10 @@ import time
 import json
 import os
 import logging
+import shutil
 import numpy as np
+import matplotlib.pyplot as plt
+from moviepy.editor import VideoFileClip, ImageSequenceClip, clips_array
 
 from utils.azure import (
     delete_blob_from_storage_account,
@@ -38,6 +41,7 @@ from utils.visualizations import (
     plot_normal_distribution,
     plot_y_values,
     write_video_to_files,
+    draw_plot_of_angle
 )
 
 
@@ -113,7 +117,8 @@ def create_visualizations(
     results["angle_value_plot_file_path"] = angle_value_plot_file_path
 
     # Angle video
-    angle_video_file_path = f"{file_name}_anglevideo.webm"
+    angle_video_file_path = f"{file_name}_anglevideo.mp4"
+    # right side of video
     frames_with_angle = [
         np.uint8(tensors[i])
         if i not in lowest_pedal_point_indices
@@ -127,8 +132,21 @@ def create_visualizations(
         )
         for i in range(len(all_keypoints))
     ]
-    write_video_to_files(frames_with_angle, clip.fps, angle_video_file_path)
+    #left side of video
+    timestamps, angles = results["timestamped_angles"]
+    timestamps_used, angles_used = results["used_timestamped_angles"]
+    frames_plots = [
+        draw_plot_of_angle(timestamp, timestamps, angles, timestamps_used, angles_used)
+        for timestamp in timestamps
+    ]
+
+    #combining videos
+    clip_right = ImageSequenceClip(frames_with_angle, fps=clip.fps)
+    clip_left = ImageSequenceClip(frames_plots, fps=clip.fps).resize(height=clip.h)
+    clip_array = clips_array([[clip_left, clip_right]])
+    clip_array.write_videofile(angle_video_file_path)
     results["angle_video_file_path"] = angle_video_file_path
+
 
     # plot normal distribution of angles
     output_normal_graph_file_path = f"{file_name}_normalgraph.png"

@@ -111,6 +111,23 @@ def draw_angle_on_image(
         image.save(output_file_path)
     return np.array(image)
 
+def draw_plot_of_angle(
+    timestamp, timestamps, angles, timestamps_used, angles_used
+):
+    fig = plt.figure()
+    plt.xlim(-1, 1)
+    x = [t - timestamp for t in timestamps]
+    x_used = [t - timestamp for t in timestamps_used]
+    plt.plot(x, angles, color="blue", marker="o")
+    plt.plot(
+        x_used, angles_used, color="green", marker="o", markersize=10, linewidth=0
+    )
+    plt.axvline(x=0, color="k", linestyle="--")
+    fig.canvas.draw()
+    data = np.frombuffer(fig.canvas.tostring_rgb(), dtype=np.uint8)
+    plt.close()
+    return data
+
 
 def plotting_angles(angles_at_peaks, lower_bound, upper_bound, output_file_path):
     """Draws a plot of the peak angles over time
