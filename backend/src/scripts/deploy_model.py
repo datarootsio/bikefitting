@@ -77,7 +77,7 @@ if deploy_on_aks:
         # CPU: Standard_F4s_v2 (4 cores, 8GB RAM) 0.1709€/hr
         # CPU: Standard_F8s_v2 (8 cores, 16GB RAM) 0.3418€/hr
         # MEM: Standard_D2as_v5 (2 cores, 8GB RAM) 0.0916€/hr
-        prov_config = AksCompute.provisioning_configuration(agent_count=1, vm_size=vm_size)
+        prov_config = AksCompute.provisioning_configuration(agent_count=1, vm_size=vm_size, cluster_purpose='DevTest')
         deployment_target = ComputeTarget.create(
             workspace=ws,
             name=deployment_target_name,
