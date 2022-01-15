@@ -72,6 +72,7 @@ if deploy_on_aks:
     except ComputeTargetException:
         logging.info("Creating a new deployment target...")
         vm_size = os.getenv("VM_SIZE")
+        # https://azureprice.net/?currency=EUR&region=westeurope
         # GPU: Standard_NC6 (6 cores, 56 GB RAM, 1xNVIDIA Tesla K80) 1.17$/hr
         # CPU: Standard_F4s_v2 (4 cores, 8GB RAM) 0.19$/hr
         # MEM: Standard_D2as_v5 (2 cores, 8GB RAM) 0.09$/hr
