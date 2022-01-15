@@ -89,7 +89,7 @@ if deploy_on_aks:
         autoscale_enabled=True,
         autoscale_target_utilization=20,
         autoscale_min_replicas=1,
-        autoscale_max_replicas=4,
+        autoscale_max_replicas=5,
         enable_app_insights=True,
         auth_enabled=False,
     )
