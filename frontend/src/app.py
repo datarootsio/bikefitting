@@ -7,6 +7,7 @@ This website is built with streamlit.
 import logging
 from utils import ui
 import streamlit as st
+import json
 
 logging.getLogger("azure").setLevel(logging.ERROR)
 
@@ -44,8 +45,7 @@ if uploaded_file is not None:
         f"{unique_id}_anglevideo.mp4",
     ]
     results_2 = ui.download_results_from_azure(blobs_2, message="A video is being created...", balloons=False)
-    st.markdown(results_2)
-    st.video(results_2["angle_video_file_path"])
+    st.video(json.loads(results_2)["angle_video_file_path"])
 
     ui.download_zip(results_2, original_name, unique_id)
 
