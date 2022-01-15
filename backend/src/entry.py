@@ -41,15 +41,16 @@ from utils.visualizations import (
     plot_angle_values,
     plot_normal_distribution,
     plot_y_values,
-    draw_plot_of_angles
+    draw_plot_of_angles,
 )
-from utils.utils import (timeit)
+from utils.utils import timeit
 
 
 def pre_process_video(file_path):
     clip = reduce_video_quality(file_path, max_pixels=256, max_fps=15, max_duration=10)
     tensors = load_tensors_from_clip(clip)
     return clip, tensors
+
 
 @timeit
 def post_process_video(all_keypoints, ideal_angle=145):
@@ -144,16 +145,17 @@ def create_visualizations(
     ]
     return results, blobs_to_upload
 
+
 def create_video_visualization(
-    file_name, 
-    tensors, 
-    all_keypoints, 
-    hipkneeankleindices, 
-    facing_direction, 
-    all_angles, 
-    lowest_pedal_point_indices, 
-    results, 
-    clip
+    file_name,
+    tensors,
+    all_keypoints,
+    hipkneeankleindices,
+    facing_direction,
+    all_angles,
+    lowest_pedal_point_indices,
+    results,
+    clip,
 ):
     # Angle video
     angle_video_file_path = f"{file_name}_anglevideo.mp4"
@@ -171,16 +173,16 @@ def create_video_visualization(
         )
         for i in range(len(all_keypoints))
     ]
-    #left side of video
+    # left side of video
     frames_plots = draw_plot_of_angles(results, clip)
 
-    #combining videos
+    # combining videos
     clip_right = ImageSequenceClip(frames_with_angle, fps=clip.fps)
     clip_left = ImageSequenceClip(frames_plots, fps=clip.fps)
     clip_array = clips_array([[clip_left, clip_right]])
     clip_array.write_videofile(angle_video_file_path)
     results["angle_video_file_path"] = angle_video_file_path
-    blobs_to_upload= [angle_video_file_path]
+    blobs_to_upload = [angle_video_file_path]
     return results, blobs_to_upload
 
 
@@ -277,17 +279,17 @@ def run(Inputs):
 
     # VISUALIZATIONS 2
     results, blobs_to_upload = create_video_visualization(
-        file_name, 
-        tensors, 
-        all_keypoints, 
-        hipkneeankleindices, 
-        facing_direction, 
-        all_angles, 
-        lowest_pedal_point_indices, 
-        results, 
-        clip
+        file_name,
+        tensors,
+        all_keypoints,
+        hipkneeankleindices,
+        facing_direction,
+        all_angles,
+        lowest_pedal_point_indices,
+        results,
+        clip,
     )
-    upload_results(file_name, results=None, blobs_to_upload)
+    upload_results(file_name, results=None, blobs_to_upload=blobs_to_upload)
 
     # Cleanup
     cleanup(file_path, blobs_to_upload)
