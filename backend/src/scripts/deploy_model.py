@@ -74,6 +74,7 @@ if deploy_on_aks:
         vm_size = os.getenv("VM_SIZE")
         # GPU: Standard_NC6 (6 cores, 56 GB RAM, 1xNVIDIA Tesla K80) 1.17$/hr
         # CPU: Standard_F4s_v2 (4 cores, 8GB RAM) 0.19$/hr
+        # MEM: Standard_D2as_v5 (2 cores, 8GB RAM) 0.09$/hr
         prov_config = AksCompute.provisioning_configuration(vm_size=vm_size)
         deployment_target = ComputeTarget.create(
             workspace=ws,
