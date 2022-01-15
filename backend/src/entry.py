@@ -185,10 +185,11 @@ def create_video_visualization(
 
 
 def upload_results(file_name, results, blobs_to_upload):
-    json_file_path = f"{file_name}.json"
-    with open(json_file_path, "w") as file:
-        json.dump(results, file)
-    blobs_to_upload.append(json_file_path)
+    if results is not None:
+        json_file_path = f"{file_name}.json"
+        with open(json_file_path, "w") as file:
+            json.dump(results, file)
+        blobs_to_upload.append(json_file_path)
 
     upload_results_to_storageaccount(
         os.getenv("AZURE_STORAGE_CONNECTION_ACCOUNT"),
@@ -286,7 +287,7 @@ def run(Inputs):
         results, 
         clip
     )
-    upload_results(file_name, results, blobs_to_upload)
+    upload_results(file_name, results=None, blobs_to_upload)
 
     # Cleanup
     cleanup(file_path, blobs_to_upload)

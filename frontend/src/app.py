@@ -41,12 +41,11 @@ if uploaded_file is not None:
     ui.results_methodology(results, unique_id)
 
     blobs_2 = [
-        f"{unique_id}.json",
         f"{unique_id}_anglevideo.mp4",
     ]
-    results_2 = ui.download_results_from_azure(blobs_2, message="A video is being created...", balloons=False)
-    st.video(json.loads(results_2)["angle_video_file_path"])
+    results[f"{unique_id}_anglevideo.mp4"] = ui.download_results_from_azure(blobs_2, message="A video is being created...", balloons=False)[f"{unique_id}_anglevideo.mp4"]
+    st.video(results[f"{unique_id}_anglevideo.mp4"])
 
-    ui.download_zip(results_2, original_name, unique_id)
+    ui.download_zip(results, original_name, unique_id)
 
     ui.follow_up(recommendation)
