@@ -48,9 +48,9 @@ def upload_file_to_azure(uploaded_file):
     return original_name, unique_id
 
 
-def download_results_from_azure(blobs):
+def download_results_from_azure(blobs, message, balloons=False):
     with st.spinner(
-        """The model is processing the video.\nIf this is your first upload, model start up can take up to 5 minutes.\nAny subsequent upload will take around 15 seconds."""
+        message
     ):
         while True:
             try:
@@ -58,9 +58,9 @@ def download_results_from_azure(blobs):
                 break
             except Exception:
                 time.sleep(1)
-
-    st.balloons()
-    st.success("The model is ready!")
+    if balloons:
+        st.balloons()
+    st.success("All done!")
     # delete results on azure
     delete_results(container="results", blobs=blobs)
     return results

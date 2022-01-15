@@ -111,10 +111,23 @@ def draw_angle_on_image(
         image.save(output_file_path)
     return np.array(image)
 
-def draw_plot_of_angle(
-    timestamp, timestamps, angles, timestamps_used, angles_used
+@timeit
+def draw_plot_of_angles(
+    results, clip
 ):
-    fig = plt.figure()
+    timestamps, angles = zip(*results["timestamped_angles"])
+    timestamps_used, angles_used = zip(*results["used_timestamped_angles"])
+    px = 1/plt.rcParams['figure.dpi']
+    width, height = clip.w, clip.h
+    return [
+        draw_plot_of_angle(timestamp, timestamps, angles, timestamps_used, angles_used, px, width, height)
+        for timestamp in timestamps
+    ]
+
+def draw_plot_of_angle(
+    timestamp, timestamps, angles, timestamps_used, angles_used, px, width, height
+):
+    fig = plt.figure(figsize=(width*px, height*px))
     plt.xlim(-1, 1)
     x = [t - timestamp for t in timestamps]
     x_used = [t - timestamp for t in timestamps_used]
@@ -124,9 +137,9 @@ def draw_plot_of_angle(
     )
     plt.axvline(x=0, color="k", linestyle="--")
     fig.canvas.draw()
-    data = np.frombuffer(fig.canvas.tostring_rgb(), dtype=np.uint8)
+    image = Image.frombytes('RGB', fig.canvas.get_width_height(),fig.canvas.tostring_rgb())
     plt.close()
-    return data
+    return np.array(image)
 
 
 def plotting_angles(angles_at_peaks, lower_bound, upper_bound, output_file_path):

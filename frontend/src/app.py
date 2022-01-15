@@ -25,15 +25,28 @@ if uploaded_file is not None:
         f"{unique_id}_normalgraph.png",
         f"{unique_id}_anglevalues.png",
         f"{unique_id}_yvalues.png",
-        f"{unique_id}_anglevideo.mp4",
     ]
 
-    results = ui.download_results_from_azure(blobs)
+
+    results = ui.download_results_from_azure(
+        blobs, 
+        message="""The model is processing the video.
+        If this is your first upload, model start up can take up to 5 minutes.
+        Any subsequent upload will take around 15 seconds.""", 
+        balloons=True
+    )
 
     recommendation, blob_data_json = ui.results_recommendation(results, unique_id)
     ui.results_methodology(results, unique_id)
+
+
+    blobs_2 = [
+        f"{unique_id}.json",
+        f"{unique_id}_anglevideo.mp4",
+    ]
+    results_2 = ui.download_results_from_azure(blobs_2, message="A video is being created...", balloons=True)
     st.video(f"{unique_id}_anglevideo.mp4")
 
-    ui.download_zip(results, original_name, unique_id)
+    ui.download_zip(results_2, original_name, unique_id)
 
     ui.follow_up(recommendation)
