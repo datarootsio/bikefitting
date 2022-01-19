@@ -28,6 +28,15 @@ def page_config():
 def title():
     st.image(get_image_path("dataroots_title.png"))
     st.title("Bike Posture Analysis Tool")
+    
+
+def hamburger():
+    hide_menu_style = """
+        <style>
+        #MainMenu {visibility: hidden;}
+        </style>
+        """
+    st.markdown(hide_menu_style, unsafe_allow_html=True)
 
 
 def setup_explanation():

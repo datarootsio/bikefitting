@@ -12,6 +12,7 @@ import json
 logging.getLogger("azure").setLevel(logging.ERROR)
 
 ui.page_config()
+ui.hamburger()
 ui.title()
 ui.setup_explanation()
 
