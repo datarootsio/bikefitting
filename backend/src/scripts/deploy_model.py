@@ -63,36 +63,34 @@ inference_config = InferenceConfig(
 )
 
 # Deployment Target
-deploy_on_aks = True
-if deploy_on_aks:
-    deployment_target_name = "akscluster-inf"
-    try:
-        deployment_target = ComputeTarget(workspace=ws, name=deployment_target_name)
-        logging.info("Found existing deployment target")
-    except ComputeTargetException:
-        logging.info("Creating a new deployment target...")
-        vm_size = os.getenv("VM_SIZE")
-        # https://azureprice.net/?currency=EUR&region=westeurope
-        # GPU: Standard_NC6 (6 cores, 56 GB RAM, 1xNVIDIA Tesla K80) 1.0273€/hr
-        # CPU: Standard_F4s_v2 (4 cores, 8GB RAM) 0.1709€/hr
-        # CPU: Standard_F8s_v2 (8 cores, 16GB RAM) 0.3418€/hr
-        # MEM: Standard_D2as_v5 (2 cores, 8GB RAM) 0.0916€/hr
-        prov_config = AksCompute.provisioning_configuration(agent_count=1, vm_size=vm_size, cluster_purpose='DevTest')
-        deployment_target = ComputeTarget.create(
-            workspace=ws,
-            name=deployment_target_name,
-            provisioning_configuration=prov_config,
-        )
-        deployment_target.wait_for_completion(show_output=True)
-    # Deployment Config
-    deployment_config = AksWebservice.deploy_configuration(
-        autoscale_enabled=True,
-        autoscale_target_utilization=20,
-        autoscale_min_replicas=1,
-        autoscale_max_replicas=5,
-        enable_app_insights=True,
-        auth_enabled=False,
+deployment_target_name = "akscluster-inf"
+try:
+    deployment_target = ComputeTarget(workspace=ws, name=deployment_target_name)
+    logging.info("Found existing deployment target")
+except ComputeTargetException:
+    logging.info("Creating a new deployment target...")
+    vm_size = os.getenv("VM_SIZE")
+    # https://azureprice.net/?currency=EUR&region=westeurope
+    # GPU: Standard_NC6 (6 cores, 56 GB RAM, 1xNVIDIA Tesla K80) 1.0273€/hr
+    # CPU: Standard_F4s_v2 (4 cores, 8GB RAM) 0.1709€/hr
+    # CPU: Standard_F8s_v2 (8 cores, 16GB RAM) 0.3418€/hr
+    # MEM: Standard_D2as_v5 (2 cores, 8GB RAM) 0.0916€/hr
+    prov_config = AksCompute.provisioning_configuration(agent_count=5, vm_size=vm_size, cluster_purpose='DevTest')
+    deployment_target = ComputeTarget.create(
+        workspace=ws,
+        name=deployment_target_name,
+        provisioning_configuration=prov_config,
     )
+    deployment_target.wait_for_completion(show_output=True)
+# Deployment Config
+deployment_config = AksWebservice.deploy_configuration(
+    autoscale_enabled=True,
+    autoscale_target_utilization=15,
+    autoscale_min_replicas=1,
+    autoscale_max_replicas=5,
+    enable_app_insights=True,
+    auth_enabled=False,
+)
 
 # DEPLOYMENT
 service = Model.deploy(
@@ -100,8 +98,8 @@ service = Model.deploy(
     name="movenet",
     models=[],  # model is pulled from tensorflowhub
     inference_config=inference_config,
-    deployment_config=deployment_config if deploy_on_aks else None,
-    deployment_target=deployment_target if deploy_on_aks else None,
+    deployment_config=deployment_config,
+    deployment_target=deployment_target,
     overwrite=True,
     show_output=True,
 )
